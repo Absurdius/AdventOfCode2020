@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 /*parse an individual boarding pass code*/
-void parsebp(char* bp)
+int parsebp(char* bp)
 { 
 	/* Binary pariotiioning is equal to binary conversion*/
 	/* Most significant bit first */
@@ -23,7 +23,8 @@ void parsebp(char* bp)
 		}
 	}
     int place_id = row_nbr * 8 + col_nbr; 
-	printf("row: %i , col %i  , place id: %i ;\n", row_nbr, col_nbr, place_id); 
+	printf("row: %i , col %i  , place id: %i ;\n", row_nbr, col_nbr, place_id);
+    return place_id; 
 }
 
 int main() {
@@ -47,8 +48,33 @@ char * line;
 size_t length; 
 ssize_t read; 
 
+int max_boarding_id = 0;
+int min_boarding_id = 1023;
+//const int MAX_ID = 1023;
+int boarding_checks[1023];
+
 while ((read = getline(&line, &length, input)) != -1) {
-    parsebp(line);
+
+    int boarding_id = parsebp(line);
+    boarding_checks[boarding_id] = 1; 
+
+    if(max_boarding_id < boarding_id){
+        max_boarding_id = boarding_id; 
+    }
+
+    if(min_boarding_id > boarding_id){
+        min_boarding_id = boarding_id;     
+    }
+}
+
+printf("Largest boarding pass id: %i \n", max_boarding_id);
+printf("Smallest boarding pass id: %i \n", min_boarding_id);
+
+for(int i = min_boarding_id; i < 1023; i++){
+    if(boarding_checks[i] != 1 && i <= max_boarding_id){
+        printf("Missing boarding pass id: %i \n", i);   
+        printf("Row: %i, Col: %i \n", i/8, i%8);  
+   }
 }
 
 fclose(input);
